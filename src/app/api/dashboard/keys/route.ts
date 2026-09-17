@@ -29,9 +29,13 @@ export async function POST() {
   }
 
   const { plaintext, hash, prefix } = generateApiKey();
-  const { error } = await supabaseAdmin.from("api_keys").insert({ key_hash: hash, key_prefix: prefix, owner_email: email, plan: "free" });
-  if (error) return NextResponse.json({ error: "Could not create key" }, { status: 500 });
-  return NextResponse.json({ apiKey: plaintext, prefix });
+  const { data, error } = await supabaseAdmin
+    .from("api_keys")
+    .insert({ key_hash: hash, key_prefix: prefix, owner_email: email, plan: "free" })
+    .select("id, key_prefix, plan, created_at, last_used_at, revoked_at")
+    .single();
+  if (error || !data) return NextResponse.json({ error: "Could not create key" }, { status: 500 });
+  return NextResponse.json({ apiKey: plaintext, key: data });
 }
 
 // Revoke one of the signed-in account's keys.

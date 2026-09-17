@@ -28,6 +28,7 @@ export function KeyManager({ initialKeys }: { initialKeys: KeyRow[] }) {
     setBusy(null);
     if (!res.ok) return setError(data.error || "Could not create key");
     setFresh(data.apiKey);
+    setKeys((ks) => [data.key as KeyRow, ...ks]);
     router.refresh();
   }
 
