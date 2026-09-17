@@ -4,6 +4,7 @@ const LINKS = [
   { href: "/docs", label: "Docs" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "https://github.com/0xArx/jevegis", label: "GitHub" },
 ];
 
 export function Nav() {

@@ -1,9 +1,11 @@
 # Jevegis
 
+**Open source.** MIT licensed. Live at https://jevegis.vercel.app. SDK/CLI: https://github.com/0xArx/jevegis-sdk
+
 Guardrails for LLM apps in one API call. Security (prompt injection, jailbreaks,
 credential/PII leaks, unauthorized actions, malicious code, indirect injection in
 retrieved documents) and Trust & Safety moderation, both powered by TypeSafe's Jev
-typed-judgment model — calibrated probabilities, no generated text, ~1s per call.
+typed-judgment model: calibrated probabilities, no generated text, sub-second calls.
 
 ## Architecture
 
@@ -17,13 +19,17 @@ typed-judgment model — calibrated probabilities, no generated text, ~1s per ca
   usage logging (best-effort, never fails a scan).
 - **Routes**: `/api/v1/{scan,moderate}` (authenticated, logged),
   `/api/{scan,moderate}` (unauthenticated playground for the landing demo),
-  `/api/keys` (self-serve key issuance), `/api/usage` (per-key dashboard data).
-- **Pages**: `/` landing, `/docs`, `/get-started`, `/usage`.
+  `/api/keys` (self-serve key issuance), `/api/dashboard/keys` (create/revoke, signed in).
+- **Auth**: Supabase magic link (`/login`, `/auth/callback`, `/auth/finish`), session refresh in `src/proxy.ts`.
+- **Pages**: `/` landing, `/docs`, `/get-started`, `/dashboard`, `/terms`, `/privacy`.
 
 ## Supabase
 
-Project `jevegis` (ref `tqjlsexokfnyqoklyqzt`). Tables: `api_keys`, `scans`.
-Schema in `supabase/schema.sql`. Keys/URL in `.env.local`.
+Tables: `api_keys`, `scans`, `demo_hits`. Apply `supabase/schema.sql` to a fresh project; keys go in `.env.local` (see `.env.example`).
+
+## Evals
+
+`npm run eval` runs every labeled case in `evals/cases.json` against the live engine and reports verdict accuracy, per-flag misses, p50/p95 latency, and cost. Current: 42/42.
 
 ## Run
 
@@ -31,7 +37,7 @@ Schema in `supabase/schema.sql`. Keys/URL in `.env.local`.
 node node_modules/next/dist/bin/next dev --port 4950
 ```
 
-Env: `TYPESAFE_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+Copy `.env.example` to `.env.local`. Env: `TYPESAFE_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
 optional `NEXT_PUBLIC_SITE_URL`.
 
 ## Positioning
