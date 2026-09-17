@@ -1,19 +1,37 @@
+import { createHash } from "crypto";
+import { supabaseAdmin } from "./supabaseAdmin";
+
 export const MAX_TEXT_LENGTH = 8000;
 export const MAX_KEYS_PER_EMAIL = 3;
 
-const hits = new Map<string, number[]>();
+function clientIp(request: Request): string {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    request.headers.get("x-real-ip") ||
+    "local"
+  );
+}
 
-// In-memory, so per-instance only. Enough to stop casual abuse of the free
-// playground; the authenticated API is limited in Postgres instead.
-export function demoRateLimit(request: Request, max = 10, windowMs = 60_000): boolean {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < windowMs);
-  if (recent.length >= max) {
-    hits.set(ip, recent);
-    return false;
+/**
+ * Durable per-IP throttle for the unauthenticated playground and key issuance.
+ * Stored in Postgres so it survives serverless cold starts. IPs are hashed.
+ * Fails open on a database error: a broken throttle should not take the demo down.
+ */
+export async function demoRateLimit(request: Request, scope: string, max: number, windowSeconds = 60): Promise<boolean> {
+  const ipHash = createHash("sha256").update(`${scope}:${clientIp(request)}`).digest("hex").slice(0, 32);
+  const since = new Date(Date.now() - windowSeconds * 1000).toISOString();
+  try {
+    const { count, error } = await supabaseAdmin
+      .from("demo_hits")
+      .select("id", { count: "exact", head: true })
+      .eq("ip_hash", ipHash)
+      .gte("created_at", since);
+    if (error) throw error;
+    if ((count ?? 0) >= max) return false;
+    await supabaseAdmin.from("demo_hits").insert({ ip_hash: ipHash });
+    return true;
+  } catch (err) {
+    console.error("demo rate limit unavailable", err);
+    return true;
   }
-  recent.push(now);
-  hits.set(ip, recent);
-  return true;
 }

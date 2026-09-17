@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
-  if (!demoRateLimit(request, 5)) {
+  if (!(await demoRateLimit(request, "keys", 5))) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 

@@ -8,7 +8,9 @@ export function Footer() {
         <div className="flex gap-5">
           <Link href="/docs" className="hover:text-[var(--text)] transition">Docs</Link>
           <Link href="/get-started" className="hover:text-[var(--text)] transition">Get API key</Link>
-          <Link href="/usage" className="hover:text-[var(--text)] transition">Usage</Link>
+          <Link href="/dashboard" className="hover:text-[var(--text)] transition">Dashboard</Link>
+          <Link href="/terms" className="hover:text-[var(--text)] transition">Terms</Link>
+          <Link href="/privacy" className="hover:text-[var(--text)] transition">Privacy</Link>
         </div>
       </div>
     </footer>

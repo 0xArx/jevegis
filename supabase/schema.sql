@@ -30,3 +30,11 @@ create table if not exists scans (
 
 create index if not exists idx_scans_api_key_created on scans (api_key_id, created_at desc);
 create index if not exists idx_scans_api_key_product_created on scans (api_key_id, product, created_at desc);
+
+-- Anonymous playground / key-issuance throttling, keyed by hashed IP.
+create table if not exists demo_hits (
+  id bigserial primary key,
+  ip_hash text not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists idx_demo_hits_ip_created on demo_hits (ip_hash, created_at desc);

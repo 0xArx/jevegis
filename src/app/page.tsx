@@ -23,10 +23,12 @@ const RESPONSE = `{
     "credential_leak":          { "score": 0.04, "triggered": false }
   },
   "severity": { "level": "high" },
-  "latency_ms": 1043
+  "latency_ms": 353
 }`;
 
-const ACT = `const { verdict, flags } = await jevegis.scan(userMessage);
+const ACT = `import { Jevegis } from "jevegis"; // npm i github:0xArx/jevegis-sdk
+
+const { verdict, flags } = await new Jevegis().scan(userMessage);
 
 if (verdict === "block") return refuse();
 
@@ -61,14 +63,14 @@ const MODERATION_FLAGS = [
 const COMPARISON: [string, string, string, string][] = [
   ["Getting started", "Book a demo, create a project, assign a policy", "Write and tune your own judge prompt", "Enter an email, get a key"],
   ["What you get back", "A flagged boolean", "Prose you have to parse", "A calibrated probability per category"],
-  ["Latency", "Under 50ms (Lakera's published figure)", "3 to 8 seconds", "About 1 second, flat"],
+  ["Latency", "Under 50ms (Lakera's published figure)", "3 to 8 seconds", "p50 350ms, p95 1.1s, flat as checks grow"],
   ["Cost per 1,000 checks", "Not published", "About $6 at GPT-4o list price", "$0.25"],
   ["Tuned to your app", "Policy presets", "Whatever you prompt", "Pass a context string per call"],
 ];
 
 const FAQ: [string, string][] = [
   [
-    "Is one second fast enough?",
+    "Is a few hundred milliseconds fast enough?",
     "For most apps, yes. Scan the user input in parallel with your own LLM call, so it adds nothing to the wait, and scan the draft reply before you send it. If you need verdicts in under 100ms on every keystroke, a dedicated classifier vendor is the better fit and we would rather tell you that now.",
   ],
   [
@@ -113,7 +115,7 @@ export default function Home() {
             </h1>
             <p className="text-[var(--text-muted)] text-[17px] leading-relaxed mb-8 max-w-xl">
               Jevegis checks every prompt and every reply for injection, jailbreaks, leaked secrets, and unsafe
-              content. You get a probability for each, in about a second, for a fraction of a cent.
+              content. You get a probability for each, typically in under half a second, for a fraction of a cent.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
@@ -142,7 +144,7 @@ export default function Home() {
               <span className="px-3 py-1 rounded-full font-bold" style={{ background: "var(--block-bg)", color: "var(--block)" }}>
                 BLOCK
               </span>
-              <span className="text-[var(--text-faint)]">1,043ms</span>
+              <span className="text-[var(--text-faint)]">353ms</span>
             </div>
             {[
               ["prompt_injection", 0.99],
@@ -216,7 +218,7 @@ export default function Home() {
           <p className="text-[var(--text-muted)] leading-relaxed max-w-2xl mb-10">
             Jevegis runs on Jev, TypeSafe&apos;s typed-judgment model. It never generates text. It takes a checklist
             of questions and returns a calibrated probability for each one, all in a single pass. No output tokens
-            means no output bill, and ten questions take the same second as one.
+            means no output bill, and ten questions cost the same wall-clock as one.
           </p>
           <div className="grid md:grid-cols-3 gap-5">
             <div className="min-w-0">
@@ -232,14 +234,14 @@ export default function Home() {
             <div className="min-w-0">
               <div className="font-mono text-xs text-[var(--accent)] mb-2">03 Act</div>
               <p className="text-sm text-[var(--text-muted)] mb-3 leading-relaxed">Use our verdict, or set your own threshold per category.</p>
-              <CodeBlock code={ACT} label="your code" />
+              <CodeBlock code={ACT} label="your code (or plain fetch, see docs)" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px mt-12 rounded-xl overflow-hidden border border-[var(--border)] bg-[var(--border)]">
             {[
-              ["~1s", "per call, however many checks"],
-              ["10", "attack categories per scan"],
+              ["350ms", "median per call, however many checks"],
+              ["42/42", "labeled eval cases passing"],
               ["$0.25", "per 1,000 scans"],
               ["24x", "cheaper than GPT-4o as judge"],
             ].map(([n, l]) => (

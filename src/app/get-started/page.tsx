@@ -48,8 +48,8 @@ export default function GetStarted() {
       <main className="flex-1 px-6 md:px-10 py-16 max-w-lg mx-auto w-full">
         <h1 className="text-3xl font-extrabold tracking-tight mb-3">Get your API key</h1>
         <p className="text-[var(--text-muted)] text-sm leading-relaxed mb-8">
-          Free tier: 500 scans/day across both the Security and Moderation APIs, no card required. We only ask for
-          an email so you can find your key again if you lose it.
+          Free tier: 500 scans a day across both the Security and Moderation APIs, no card required. Your email is
+          your account: sign in with it any time to see usage, revoke this key, or create another.
         </p>
 
         {!apiKey ? (
@@ -91,8 +91,8 @@ export default function GetStarted() {
               className="rounded-lg border px-4 py-3 text-xs mb-4"
               style={{ borderColor: "var(--flag)", background: "var(--flag-bg)", color: "var(--flag)" }}
             >
-              Save this now. For your security, we don&apos;t store the plaintext key, so we can&apos;t show it to
-              you again.
+              Save this now. We only store a hash, so we can&apos;t show it again. If you lose it, sign in and create a
+              new one.
             </div>
             <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-raised)] px-4 py-3 mb-3 font-mono text-sm break-all">
               {apiKey}
@@ -112,10 +112,10 @@ export default function GetStarted() {
                 Read the docs
               </Link>
               <Link
-                href="/usage"
+                href="/dashboard"
                 className="flex-1 text-center px-4 py-2.5 rounded-lg font-semibold text-sm border border-[var(--border-strong)] hover:bg-[var(--bg-raised)] transition"
               >
-                View usage
+                Open dashboard
               </Link>
             </div>
           </div>
