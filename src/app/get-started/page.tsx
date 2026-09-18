@@ -37,6 +37,7 @@ function CopyBlock({ code }: { code: string }) {
 
 export default function GetStarted() {
   const [email, setEmail] = useState("");
+  const [tsKey, setTsKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function GetStarted() {
       const res = await fetch("/api/keys", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, typesafeApiKey: tsKey }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not create API key");
@@ -108,15 +109,40 @@ npx github:0xArx/jevegis-sdk scan "${SAMPLE}"`,
           <>
             <h1 className="text-3xl font-extrabold tracking-tight mb-3">Get your API key</h1>
             <p className="text-[var(--text-muted)] text-sm leading-relaxed mb-8">
-              Free: 500 scans a day, no card. Your email is your account, so you can come back later to see usage or
-              rotate keys.
+              Jevegis runs on your own TypeSafe account, so you pay TypeSafe directly for inference and we never see
+              your bill. Two things and you are live.
             </p>
-            <form onSubmit={createKey} className="space-y-4">
+            <form onSubmit={createKey} className="space-y-5">
+              <div>
+                <label htmlFor="ts" className="block text-xs font-mono text-[var(--text-faint)] mb-1.5">
+                  1. YOUR TYPESAFE API KEY
+                </label>
+                <input
+                  id="ts"
+                  type="password"
+                  required
+                  autoComplete="off"
+                  value={tsKey}
+                  onChange={(e) => setTsKey(e.target.value)}
+                  placeholder="apikey_…"
+                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--bg-raised)] px-4 py-3 text-base font-mono outline-none focus:border-[var(--accent)] transition"
+                />
+                <p className="text-[12px] text-[var(--text-muted)] mt-2 leading-relaxed">
+                  No account yet?{" "}
+                  <a href="https://console.typesafe.ai/settings/keys" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent)" }}>
+                    Sign up at TypeSafe
+                  </a>{" "}
+                  and copy a key from Settings, then API Keys. Takes a minute. We verify it with one tiny call,
+                  encrypt it at rest, and never display it again.
+                </p>
+              </div>
+              <label htmlFor="email" className="block text-xs font-mono text-[var(--text-faint)] -mb-3">
+                2. YOUR EMAIL
+              </label>
               <input
                 id="email"
                 type="email"
                 required
-                autoFocus
                 autoComplete="email"
                 aria-label="Email"
                 value={email}
@@ -135,7 +161,7 @@ npx github:0xArx/jevegis-sdk scan "${SAMPLE}"`,
                 className="w-full px-5 py-3 rounded-lg font-semibold text-sm transition disabled:opacity-50"
                 style={{ background: "var(--accent)", color: "#fff" }}
               >
-                {loading ? "Creating…" : "Create my key"}
+                {loading ? "Verifying with TypeSafe…" : "Create my key"}
               </button>
             </form>
           </>

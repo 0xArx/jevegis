@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   if ("error" in auth) return auth.error;
   const parsed = await parseEvaluateRequest(request, "moderation");
   if ("error" in parsed) return parsed.error;
-  const out = await runEvaluate(parsed.input);
+  const out = await runEvaluate({ ...parsed.input, typesafeApiKey: auth.key.typesafeApiKey });
   if ("error" in out) return out.error;
   await logScan(auth.key.id, "moderation", out.result);
   return NextResponse.json(out.result);

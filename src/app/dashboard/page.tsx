@@ -25,7 +25,7 @@ type Loaded = Awaited<ReturnType<typeof loadDashboard>>;
 async function loadDashboard(email: string) {
   const { data: keys } = await supabaseAdmin
     .from("api_keys")
-    .select("id, key_prefix, plan, created_at, last_used_at, revoked_at")
+    .select("id, key_prefix, plan, created_at, last_used_at, revoked_at, typesafe_linked_at")
     .eq("owner_email", email)
     .order("created_at", { ascending: false });
 

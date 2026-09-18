@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { generateApiKey } from "@/lib/apiKeys";
 import { demoRateLimit, MAX_KEYS_PER_EMAIL } from "@/lib/limits";
+import { validateTypesafeKey } from "@/lib/typesafe";
+import { seal } from "@/lib/secretBox";
 
 export const runtime = "nodejs";
 
@@ -12,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 
-  let body: { email?: string };
+  let body: { email?: string; typesafeApiKey?: string };
   try {
     body = await request.json();
   } catch {
@@ -23,6 +25,13 @@ export async function POST(request: Request) {
   if (!email || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "A valid email is required" }, { status: 400 });
   }
+
+  const typesafeApiKey = body.typesafeApiKey?.trim();
+  if (!typesafeApiKey) {
+    return NextResponse.json({ error: "Your TypeSafe API key is required. Get one at console.typesafe.ai/settings/keys." }, { status: 400 });
+  }
+  const valid = await validateTypesafeKey(typesafeApiKey);
+  if (!valid.ok) return NextResponse.json({ error: valid.reason }, { status: 400 });
 
   const { count } = await supabaseAdmin
     .from("api_keys")
@@ -40,6 +49,8 @@ export async function POST(request: Request) {
     key_prefix: prefix,
     owner_email: email,
     plan: "free",
+    typesafe_key_enc: seal(typesafeApiKey),
+    typesafe_linked_at: new Date().toISOString(),
   });
 
   if (error) {

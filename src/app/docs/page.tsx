@@ -149,11 +149,15 @@ export default function DocsPage() {
 
           <H2 id="auth">Authentication</H2>
           <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-            Grab a key at{" "}
+            Jevegis is bring-your-own-model: every Jevegis key is linked to your own{" "}
+            <a href="https://console.typesafe.ai/settings/keys" className="underline" style={{ color: "var(--accent)" }}>
+              TypeSafe API key
+            </a>
+            , and your scans run on your TypeSafe account. Get a Jevegis key at{" "}
             <a href="/get-started" className="underline" style={{ color: "var(--accent)" }}>
               /get-started
-            </a>
-            . Send it as a bearer token on every request:
+            </a>{" "}
+            and send it as a bearer token on every request:
           </p>
           <div className="my-4">
             <CodeBlock code={AUTH} />
@@ -313,7 +317,8 @@ export default function DocsPage() {
             <tbody>
               {[
                 ["400", "Missing text/messages, bad direction, or malformed thresholds/checks."],
-                ["401", "Missing, invalid, or revoked API key."],
+                ["401", "Missing, invalid, or revoked Jevegis key."],
+                ["402", "No TypeSafe key linked, or TypeSafe rejected it. Link or relink one in the dashboard."],
                 ["429", "Rate limit hit. Read the Retry-After header."],
                 ["502", "The upstream judgment failed. Safe to retry."],
               ].map(([c, d]) => (
@@ -325,8 +330,8 @@ export default function DocsPage() {
             </tbody>
           </table>
           <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-            Free plan: 20 req/min, 500 req/day, shared across both endpoints. Text capped at 8,000 characters. Check
-            usage at{" "}
+            Jevegis limits: 20 req/min, 500 req/day per key, shared across both endpoints. Text capped at 8,000
+            characters. Inference is billed by TypeSafe to your own account. Check usage at{" "}
             <a href="/dashboard" className="underline" style={{ color: "var(--accent)" }}>
               /dashboard
             </a>

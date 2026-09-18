@@ -80,6 +80,13 @@ export async function runEvaluate(input: EvaluateInput) {
     if (err instanceof EngineInputError) {
       return { error: NextResponse.json({ error: err.message }, { status: 400 }) };
     }
+    const status = (err as { status?: number }).status;
+    if (status === 401 || status === 403) {
+      return { error: NextResponse.json({ error: "TypeSafe rejected your linked key. Update it in your dashboard." }, { status: 402 }) };
+    }
+    if (status === 429) {
+      return { error: NextResponse.json({ error: "Your TypeSafe account is rate limited. Retry shortly." }, { status: 429 }) };
+    }
     console.error(err);
     return { error: NextResponse.json({ error: "Upstream judgment failed. Safe to retry." }, { status: 502 }) };
   }

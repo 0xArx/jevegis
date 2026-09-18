@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "./supabaseAdmin";
 import { hashApiKey } from "./apiKeys";
 import { checkRateLimit } from "./rateLimit";
+import { open as unseal } from "./secretBox";
+import { TYPESAFE_KEYS_URL } from "./typesafe";
 import type { EvaluateResult } from "./engine";
 
 export interface AuthedKey {
   id: string;
   plan: string;
+  typesafeApiKey: string;
 }
 
 export async function authenticate(request: Request): Promise<{ key: AuthedKey } | { error: NextResponse }> {
@@ -19,7 +22,7 @@ export async function authenticate(request: Request): Promise<{ key: AuthedKey }
   const hash = hashApiKey(match[1].trim());
   const { data: keyRow, error } = await supabaseAdmin
     .from("api_keys")
-    .select("id, plan, revoked_at")
+    .select("id, plan, revoked_at, typesafe_key_enc")
     .eq("key_hash", hash)
     .maybeSingle();
 
@@ -37,7 +40,21 @@ export async function authenticate(request: Request): Promise<{ key: AuthedKey }
     };
   }
 
-  return { key: { id: keyRow.id, plan: keyRow.plan } };
+  if (!keyRow.typesafe_key_enc) {
+    return {
+      error: NextResponse.json(
+        { error: `No TypeSafe key linked to this Jevegis key. Get one at ${TYPESAFE_KEYS_URL} and link it in your dashboard.` },
+        { status: 402 }
+      ),
+    };
+  }
+  let typesafeApiKey: string;
+  try {
+    typesafeApiKey = unseal(keyRow.typesafe_key_enc);
+  } catch {
+    return { error: NextResponse.json({ error: "Stored TypeSafe key could not be read. Re-link it in your dashboard." }, { status: 500 }) };
+  }
+  return { key: { id: keyRow.id, plan: keyRow.plan, typesafeApiKey } };
 }
 
 export async function logScan(apiKeyId: string, product: "security" | "moderation", result: EvaluateResult) {

@@ -1,7 +1,9 @@
 import { TypeSafeClient, type Questions } from "@typesafe-ai/sdk";
 import { randomUUID } from "crypto";
+import { typesafeClient } from "./typesafe";
 
-const client = new TypeSafeClient();
+// Server key: only for the anonymous playground and evals. Customer scans use their own key.
+const houseClient = new TypeSafeClient();
 
 export const POLICY_VERSION = "2026-09-17";
 
@@ -365,6 +367,8 @@ export interface EvaluateInput {
   history?: Message[];
   thresholds?: Record<string, number>;
   checks?: string[];
+  /** The customer's own TypeSafe key. Omit only for the playground/evals. */
+  typesafeApiKey?: string;
 }
 
 export interface FlagResult {
@@ -442,6 +446,7 @@ export async function evaluate(input: EvaluateInput): Promise<EvaluateResult> {
   };
 
   const started = Date.now();
+  const client = input.typesafeApiKey ? typesafeClient(input.typesafeApiKey) : houseClient;
   const response = await client.systemOne({ state, questions: questions as Questions });
   const latency_ms = Date.now() - started;
 

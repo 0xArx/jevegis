@@ -64,7 +64,7 @@ const COMPARISON: [string, string, string, string][] = [
   ["Getting started", "Book a demo, create a project, assign a policy", "Write and tune your own judge prompt", "Enter an email, get a key"],
   ["What you get back", "A flagged boolean", "Prose you have to parse", "A calibrated probability per category"],
   ["Latency", "Under 50ms (Lakera's published figure)", "3 to 8 seconds", "p50 350ms, p95 1.1s, flat as checks grow"],
-  ["Cost per 1,000 checks", "Not published", "About $6 at GPT-4o list price", "$0.25"],
+  ["Cost per 1,000 checks", "Not published", "About $6 at GPT-4o list price", "About $0.07 in TypeSafe inference, billed to you. Jevegis adds nothing."],
   ["Tuned to your app", "Policy presets", "Whatever you prompt", "Pass a context string per call"],
 ];
 
@@ -76,6 +76,10 @@ const FAQ: [string, string][] = [
   [
     "Why probabilities instead of a yes or no?",
     "Because the right threshold depends on your product. A children's education app and a security research tool should not share a cutoff. We give you a suggested verdict and every number behind it, so you can overrule us.",
+  ],
+  [
+    "Why do I need my own TypeSafe key?",
+    "Because your scans should run on your account, not ours. You get TypeSafe's rates with no markup, your usage is yours, and we never hold a bill on your behalf. We verify the key with one tiny call when you link it, encrypt it at rest, and never display it again.",
   ],
   [
     "What is Jev?",
@@ -242,7 +246,7 @@ export default function Home() {
             {[
               ["350ms", "median per call, however many checks"],
               ["42/42", "labeled eval cases passing"],
-              ["$0.25", "per 1,000 scans"],
+              ["$0", "Jevegis markup. You pay TypeSafe directly."],
               ["24x", "cheaper than GPT-4o as judge"],
             ].map(([n, l]) => (
               <div key={l} className="bg-[var(--bg)] px-5 py-6">
@@ -336,16 +340,17 @@ export default function Home() {
         {/* 7. Pricing */}
         <section id="pricing" className="py-20 border-t border-[var(--border)] scroll-mt-16">
           <Eyebrow>Pricing</Eyebrow>
-          <SectionTitle>Published prices. Start in a minute.</SectionTitle>
+          <SectionTitle>Bring your own model key. Pay nobody twice.</SectionTitle>
           <div className="grid md:grid-cols-2 gap-5 mt-8 max-w-3xl">
             <div className="rounded-xl border-2 p-6" style={{ borderColor: "var(--accent)" }}>
               <div className="text-sm font-semibold text-[var(--text-faint)] mb-1">Free</div>
               <div className="text-4xl font-extrabold mb-1">$0</div>
-              <div className="text-xs text-[var(--text-faint)] mb-5 font-mono">500 scans a day · 20 a minute</div>
+              <div className="text-xs text-[var(--text-faint)] mb-5 font-mono">500 scans a day · 20 a minute · your TypeSafe key</div>
               <ul className="text-sm text-[var(--text-muted)] space-y-2 mb-6">
                 <li>Both endpoints, every flag</li>
                 <li>Raw probabilities on every response</li>
-                <li>Usage dashboard</li>
+                <li>Inference billed by TypeSafe to you, about $0.00007 a scan</li>
+                <li>Usage dashboard, key rotation</li>
               </ul>
               <Link
                 href="/get-started"
@@ -357,19 +362,19 @@ export default function Home() {
             </div>
             <div className="rounded-xl border border-[var(--border)] p-6">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm font-semibold text-[var(--text-faint)]">Pay as you go</span>
+                <span className="text-sm font-semibold text-[var(--text-faint)]">Team</span>
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-[var(--bg-raised)] text-[var(--text-faint)]">
                   Coming soon
                 </span>
               </div>
               <div className="text-4xl font-extrabold mb-1">
-                $0.25<span className="text-sm font-normal text-[var(--text-faint)]"> per 1,000 scans</span>
+                Team<span className="text-sm font-normal text-[var(--text-faint)]"> pricing TBD</span>
               </div>
-              <div className="text-xs text-[var(--text-faint)] mb-5 font-mono">No minimum · no contract</div>
+              <div className="text-xs text-[var(--text-faint)] mb-5 font-mono">Higher limits · shared keys · SLA</div>
               <ul className="text-sm text-[var(--text-muted)] space-y-2">
                 <li>Everything in Free</li>
-                <li>Higher rate limits</li>
-                <li>Billed monthly on usage</li>
+                <li>Higher rate limits, more keys</li>
+                <li>Custom guardrails for your product</li>
               </ul>
             </div>
           </div>

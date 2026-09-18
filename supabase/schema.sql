@@ -6,6 +6,8 @@ create table if not exists api_keys (
   key_prefix text not null,
   owner_email text not null,
   plan text not null default 'free',
+  typesafe_key_enc text,          -- customer's own TypeSafe key, AES-256-GCM sealed
+  typesafe_linked_at timestamptz,
   created_at timestamptz not null default now(),
   revoked_at timestamptz,
   last_used_at timestamptz
